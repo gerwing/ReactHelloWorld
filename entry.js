@@ -13,17 +13,18 @@ var CommentBox = React.createClass({
         return {data:[]};
     },
     componentDidMount: function() {
-        var that = this;
-        window.setTimeout(function() {
-          that.setState({data:data});
-        }, 5000);
+        window.setTimeout(() => this.setState({data:data}), 2000);
+    },
+    handleCommentSubmit: function(comment) {
+      data.push(comment);
+      setTimeout(() => this.setState({data:data}), 1000);
     },
     render: function() {
       return (
         <div className="commentBox">
         <h1>Comments</h1>
           <CommentList data={this.state.data} />
-          <CommentForm />
+          <CommentForm onSubmit={this.handleCommentSubmit} />
         </div>
       );
     }
@@ -45,10 +46,39 @@ var CommentList = React.createClass({
 });
 
 var CommentForm = React.createClass({
+  getInitialState: function() {
+  return {author: '', text: ''};
+  },
+  handleAuthorChange: function(e) {
+    this.setState({author: e.target.value});
+  },
+  handleTextChange: function(e) {
+    this.setState({text: e.target.value});
+  },
+  handleSubmit: function(e) {
+    e.preventDefault();
+    var author = this.state.author.trim();
+    var text = this.state.text.trim();
+    if (!text || !author) {
+      return;
+    }
+    this.props.onSubmit({text:text, author:author});
+    this.setState({author: '', text: ''});
+  },
   render: function() {
     return (
       <div className="commentForm">
-        Hello, world! I am a CommentForm.
+        <form className="commentForm" onSubmit={this.handleSubmit}>
+          <input type="text"
+                  placeholder="Your name"
+                  value={this.state.author}
+                  onChange={this.handleAuthorChange}/>
+          <input type="text"
+                  placeholder="Say something..."
+                  value={this.state.text}
+                  onChange={this.handleTextChange}/>
+          <input type="submit" value="Post" />
+        </form>
       </div>
     );
   }
